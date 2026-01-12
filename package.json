@@ -1,0 +1,44 @@
+{
+  "name": "copilot-premium-requests-status-bar",
+  "displayName": "Copilot Premium Requests Status Bar",
+  "description": "Display your current use of GitHub Copilot premium requests, separating included and budget",
+  "version": "0.0.1",
+  "publisher": "Fuzzwah",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "copilot-premium-requests.authenticate",
+        "title": "Copilot Premium Requests: Authenticate"
+      },
+      {
+        "command": "copilot-premium-requests.refresh",
+        "title": "Copilot Premium Requests: Refresh"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {}
+}
