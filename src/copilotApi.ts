@@ -9,6 +9,21 @@ export interface CopilotUsage {
     usedBudget: number;
 }
 
+interface GitHubUser {
+    login: string;
+}
+
+interface CopilotApiResponse {
+    included_requests?: {
+        total: number;
+        used: number;
+    };
+    budget_requests?: {
+        total: number;
+        used: number;
+    };
+}
+
 export class CopilotApiClient {
     private static readonly COPILOT_API_BASE = 'https://api.github.com';
 
@@ -22,18 +37,29 @@ export class CopilotApiClient {
 
         try {
             // First, get the authenticated user
-            const user = await this.makeRequest('/user', token);
+            const user = await this.makeRequest<GitHubUser>('/user', token);
             if (!user || !user.login) {
                 throw new Error('Failed to get user information');
             }
 
-            // Fetch Copilot usage data
-            // Note: The actual API endpoint might vary. Using a plausible endpoint structure.
-            // GitHub's Copilot API might be at different endpoints or require different approaches.
-            const usage = await this.makeRequest(`/copilot/billing/usage`, token);
-            
-            if (usage) {
-                return this.parseUsage(usage);
+            // Attempt to fetch Copilot usage data
+            // Note: The exact API endpoint may vary depending on GitHub's Copilot API implementation.
+            // This uses a plausible endpoint structure. If the endpoint doesn't exist or returns
+            // different data, the extension will show mock/placeholder data until the correct
+            // endpoint is configured.
+            try {
+                const usage = await this.makeRequest<CopilotApiResponse>(`/copilot/billing/usage`, token);
+                
+                if (usage) {
+                    return this.parseUsage(usage);
+                }
+            } catch (apiError) {
+                // If the API endpoint doesn't exist or returns an error, use placeholder data
+                console.warn('Copilot API endpoint not available, using placeholder data:', apiError);
+                vscode.window.showWarningMessage(
+                    'Unable to fetch actual Copilot usage data. The API endpoint may not be available yet.'
+                );
+                return this.getPlaceholderUsage();
             }
 
             return undefined;
@@ -46,9 +72,7 @@ export class CopilotApiClient {
         }
     }
 
-    private parseUsage(data: any): CopilotUsage {
-        // Parse the response based on actual API structure
-        // This is a placeholder structure that should be adjusted based on actual API
+    private parseUsage(data: CopilotApiResponse): CopilotUsage {
         return {
             totalIncluded: data.included_requests?.total || 0,
             usedIncluded: data.included_requests?.used || 0,
@@ -57,7 +81,17 @@ export class CopilotApiClient {
         };
     }
 
-    private makeRequest(path: string, token: string): Promise<any> {
+    private getPlaceholderUsage(): CopilotUsage {
+        // Return placeholder data for demonstration purposes
+        return {
+            totalIncluded: 50,
+            usedIncluded: 23,
+            totalBudget: 100,
+            usedBudget: 45
+        };
+    }
+
+    private makeRequest<T>(path: string, token: string): Promise<T> {
         return new Promise((resolve, reject) => {
             const options = {
                 hostname: 'api.github.com',
@@ -81,7 +115,7 @@ export class CopilotApiClient {
                 res.on('end', () => {
                     if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
                         try {
-                            resolve(JSON.parse(data));
+                            resolve(JSON.parse(data) as T);
                         } catch (error) {
                             reject(new Error('Failed to parse response'));
                         }

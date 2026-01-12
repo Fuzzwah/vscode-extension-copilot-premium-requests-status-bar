@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 export class GitHubAuthProvider {
     private static readonly GITHUB_AUTH_PROVIDER_ID = 'github';
     private static readonly SCOPES = ['user:email', 'read:org'];
-    private static readonly SESSION_KEY = 'github-copilot-session';
 
     constructor(private context: vscode.ExtensionContext) {}
 
@@ -16,10 +15,6 @@ export class GitHubAuthProvider {
             );
 
             if (session) {
-                await this.context.secrets.store(
-                    GitHubAuthProvider.SESSION_KEY,
-                    JSON.stringify(session)
-                );
                 vscode.window.showInformationMessage('Successfully authenticated with GitHub');
             }
         } catch (error) {
@@ -62,6 +57,6 @@ export class GitHubAuthProvider {
     }
 
     async signOut(): Promise<void> {
-        await this.context.secrets.delete(GitHubAuthProvider.SESSION_KEY);
+        // VS Code's authentication API manages sessions, no additional cleanup needed
     }
 }

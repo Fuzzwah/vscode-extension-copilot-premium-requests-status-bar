@@ -4,6 +4,7 @@
   "description": "Display your current use of GitHub Copilot premium requests, separating included and budget",
   "version": "0.0.1",
   "publisher": "Fuzzwah",
+  "license": "GPL-3.0",
   "engines": {
     "vscode": "^1.80.0"
   },
