@@ -4,7 +4,6 @@ import { CopilotApiClient } from './copilotApi';
 import { StatusBarManager } from './statusBar';
 
 let statusBarManager: StatusBarManager | undefined;
-let refreshInterval: NodeJS.Timeout | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Copilot Premium Requests Status Bar is now active');
@@ -34,22 +33,15 @@ export async function activate(context: vscode.ExtensionContext) {
     await statusBarManager.refresh();
 
     // Auto-refresh every 5 minutes
-    refreshInterval = setInterval(async () => {
+    const refreshInterval = setInterval(async () => {
         await statusBarManager?.refresh();
     }, 5 * 60 * 1000);
 
-    context.subscriptions.push({
-        dispose: () => {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-        }
-    });
+    context.subscriptions.push(
+        new vscode.Disposable(() => clearInterval(refreshInterval))
+    );
 }
 
 export function deactivate() {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
     statusBarManager?.dispose();
 }

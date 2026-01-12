@@ -7,6 +7,7 @@ export interface CopilotUsage {
     usedIncluded: number;
     totalBudget: number;
     usedBudget: number;
+    isPlaceholder?: boolean;
 }
 
 interface GitHubUser {
@@ -87,7 +88,8 @@ export class CopilotApiClient {
             totalIncluded: 50,
             usedIncluded: 23,
             totalBudget: 100,
-            usedBudget: 45
+            usedBudget: 45,
+            isPlaceholder: true
         };
     }
 

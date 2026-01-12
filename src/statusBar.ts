@@ -39,17 +39,31 @@ export class StatusBarManager {
         const includedRemaining = usage.totalIncluded - usage.usedIncluded;
         const budgetRemaining = usage.totalBudget - usage.usedBudget;
 
-        const text = `$(copilot) Included: ${includedRemaining}/${usage.totalIncluded} | Budget: ${budgetRemaining}/${usage.totalBudget}`;
+        const placeholderPrefix = usage.isPlaceholder ? '(Demo) ' : '';
+        const text = `${placeholderPrefix}$(copilot) Included: ${includedRemaining}/${usage.totalIncluded} | Budget: ${budgetRemaining}/${usage.totalBudget}`;
         
         this.statusBarItem.text = text;
         this.statusBarItem.tooltip = this.buildTooltip(usage);
-        this.statusBarItem.backgroundColor = undefined;
+        
+        if (usage.isPlaceholder) {
+            this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+        } else {
+            this.statusBarItem.backgroundColor = undefined;
+        }
     }
 
     private buildTooltip(usage: CopilotUsage): string {
         const lines = [
             'GitHub Copilot Premium Requests',
-            '',
+            ''
+        ];
+
+        if (usage.isPlaceholder) {
+            lines.push('⚠️  DEMO DATA - API endpoint not available');
+            lines.push('');
+        }
+
+        lines.push(
             'Included Requests:',
             `  Used: ${usage.usedIncluded}`,
             `  Remaining: ${usage.totalIncluded - usage.usedIncluded}`,
@@ -61,7 +75,7 @@ export class StatusBarManager {
             `  Total: ${usage.totalBudget}`,
             '',
             'Click to refresh'
-        ];
+        );
 
         return lines.join('\n');
     }

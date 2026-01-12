@@ -28,7 +28,7 @@ export class GitHubAuthProvider {
     async getAccessToken(): Promise<string | undefined> {
         try {
             // Try to get existing session without prompting
-            const session = await vscode.authentication.getSession(
+            let session = await vscode.authentication.getSession(
                 GitHubAuthProvider.GITHUB_AUTH_PROVIDER_ID,
                 GitHubAuthProvider.SCOPES,
                 { createIfNone: false }
@@ -46,7 +46,13 @@ export class GitHubAuthProvider {
 
             if (choice === 'Authenticate') {
                 await this.authenticate();
-                return await this.getAccessToken();
+                // Try to get the session again after authentication
+                session = await vscode.authentication.getSession(
+                    GitHubAuthProvider.GITHUB_AUTH_PROVIDER_ID,
+                    GitHubAuthProvider.SCOPES,
+                    { createIfNone: false }
+                );
+                return session?.accessToken;
             }
 
             return undefined;
