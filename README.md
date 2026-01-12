@@ -39,6 +39,8 @@ This means:
 - **Included**: 45 used out of 50 total included requests (5 remaining)
 - **Budget**: 98 used out of 100 total budget requests (2 remaining)
 
+> **Note**: If the GitHub Copilot API endpoint is not yet available or returns an error, the extension will display demo/placeholder data with a "(Demo)" prefix and a warning background color. The tooltip will indicate when placeholder data is being shown.
+
 ### Commands
 
 - `Copilot Premium Requests: Authenticate` - Authenticate with GitHub
