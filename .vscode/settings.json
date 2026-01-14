@@ -1,0 +1,40 @@
+{
+    "chat.promptFilesRecommendations": {
+        "speckit.constitution": true,
+        "speckit.specify": true,
+        "speckit.plan": true,
+        "speckit.tasks": true,
+        "speckit.implement": true
+    },
+    "chat.tools.terminal.autoApprove": {
+        ".specify/scripts/bash/": true,
+        ".specify/scripts/powershell/": true
+    },
+    "workbench.colorCustomizations": {
+        "terminal.background": "#181818",
+        "terminal.foreground": "#00CA00",
+        "terminalCursor.background": "#C9C610",
+        "terminalCursor.foreground": "#F1F1F1",
+        "terminal.ansiBlack": "#000000",
+        "terminal.ansiRed": "#cc0000",
+        "terminal.ansiGreen": "#00CA00",
+        "terminal.ansiYellow": "#cccc00",
+        "terminal.ansiBlue": "#0000cc",
+        "terminal.ansiMagenta": "#cc00cc",
+        "terminal.ansiCyan": "#00cccc",
+        "terminal.ansiWhite": "#FFFFFF",
+        "terminal.ansiBrightBlack": "#666666",
+        "terminal.ansiBrightRed": "#cc6666",
+        "terminal.ansiBrightGreen": "#53a553",
+        "terminal.ansiBrightYellow": "#cccc66",
+        "terminal.ansiBrightBlue": "#6666cc",
+        "terminal.ansiBrightMagenta": "#cc66cc",
+        "terminal.ansiBrightCyan": "#66cccc",
+        "terminal.ansiBrightWhite": "#FFFFFF",
+        "titleBar.activeBackground": "#FA9203",
+        "titleBar.inactiveBackground": "#c75f00",
+        "titleBar.activeForeground": "#000000",
+        "titleBar.inactiveForeground": "#FFFFFF"
+    }
+}
+

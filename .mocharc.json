@@ -1,0 +1,12 @@
+{
+  "require": [
+    "tests/unit/setup.js",
+    "ts-node/register"
+  ],
+  "extensions": [
+    "ts"
+  ],
+  "spec": [
+    "tests/unit/**/*.test.ts"
+  ]
+}

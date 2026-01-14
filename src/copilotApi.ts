@@ -26,7 +26,8 @@ interface CopilotApiResponse {
 }
 
 export class CopilotApiClient {
-    private static readonly COPILOT_API_BASE = 'https://api.github.com';
+    // @ts-expect-error - API base constant reserved for potential use
+    private static readonly _COPILOT_API_BASE = 'https://api.github.com';
 
     constructor(private authProvider: GitHubAuthProvider) {}
 

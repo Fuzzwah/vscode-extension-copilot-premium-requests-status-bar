@@ -4,7 +4,8 @@ export class GitHubAuthProvider {
     private static readonly GITHUB_AUTH_PROVIDER_ID = 'github';
     private static readonly SCOPES = ['user:email', 'read:org'];
 
-    constructor(private context: vscode.ExtensionContext) {}
+    // @ts-expect-error - context parameter reserved for future use
+    constructor(private _context: vscode.ExtensionContext) {}
 
     async authenticate(): Promise<void> {
         try {
