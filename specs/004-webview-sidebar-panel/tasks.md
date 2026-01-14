@@ -125,7 +125,7 @@
 
 ---
 
-## Phase 6: User Story 4 - Pacing Guidance Display (Priority: P2)
+## Phase 6: User Story 4 - Pacing Guidance Display (Priority: P2) ✅ COMPLETE
 
 **Goal**: Show daily/weekly average guidance and reset countdown in each quota card
 
@@ -133,12 +133,40 @@
 
 ### Implementation for User Story 4
 
-- [ ] T048 [P] [US4] Update generateQuotaCard() tests in tests/unit/webview/WebviewHtmlGenerator.test.ts to include pacing guidance section
-- [ ] T049 [P] [US4] Update generateQuotaCard() implementation in src/webview/WebviewHtmlGenerator.ts to call calculatePacing() and include pacing HTML
-- [ ] T050 [US4] Add CSS styles for pacing guidance section in generateHtml() in src/webview/WebviewHtmlGenerator.ts
-- [ ] T051 [US4] Verify manual test: Open sidebar, confirm each quota card shows pacing guidance with daily/weekly averages and reset countdown
+- [X] T048 [P] [US4] Update generateQuotaCard() tests in tests/unit/webview/WebviewHtmlGenerator.test.ts to include pacing guidance section
+- [X] T049 [P] [US4] Update generateQuotaCard() implementation in src/webview/WebviewHtmlGenerator.ts to call calculatePacing() and include pacing HTML
+- [X] T050 [US4] Add CSS styles for pacing guidance section in generateHtml() in src/webview/WebviewHtmlGenerator.ts
+- [X] T051 [US4] Verify manual test: Open sidebar, confirm each quota card shows pacing guidance with daily/weekly averages and reset countdown
+- [X] T051a [US4] Add current daily usage calculation to pacing data (total used / days elapsed)
+- [X] T051b [US4] Display current daily usage alongside required daily rate for comparison
 
-**Checkpoint**: User Story 4 complete - pacing guidance visible in quota cards
+**Checkpoint**: User Story 4 complete - pacing guidance visible in quota cards with current vs required usage rates
+
+---
+
+## Phase 6.5: Budget Tracking & Configuration (Priority: P1) ✅ COMPLETE
+
+**Goal**: Enable users to configure and track overage budget with dollar-based input and visual display
+
+**Independent Test**: Configure budget in dollars, verify display shows budget used/total and correct percentage
+
+### Implementation for Budget Tracking
+
+- [X] T051c [P] Add budgetDollars configuration setting to package.json ($0.04/request = 25 requests/dollar)
+- [X] T051d [P] Add budgetRequests configuration setting to package.json (advanced users)
+- [X] T051e Update UsageApiClient.getBudgetTotal() to convert budgetDollars to requests (multiply by 25)
+- [X] T051f Update UsageApiClient.getBudgetTotal() to check API overage_limit field
+- [X] T051g Fix overage calculation to use remaining field instead of unreliable overage_count
+- [X] T051h Fix percentage calculation to include budget in total quota: (includedUsed + budgetUsed) / (includedTotal + budgetTotal)
+- [X] T051i Fix pacing calculation to use total remaining quota (included + budget remaining)
+- [X] T051j Add budget display to Plan Details section with Configure Budget button
+- [X] T051k Implement Configure Budget button handler to open budgetDollars setting
+- [X] T051l Add onDidChangeConfiguration listener to auto-refresh webview on budget changes
+- [X] T051m Update status bar format to show budget as fraction: "300/300 + 400/750 (67%)"
+- [X] T051n Add debug API command to inspect raw API responses and org billing endpoints
+- [X] T051o Write tests for budget configuration and calculation logic
+
+**Checkpoint**: Budget tracking complete - users can configure budget and see accurate overage tracking
 
 ---
 

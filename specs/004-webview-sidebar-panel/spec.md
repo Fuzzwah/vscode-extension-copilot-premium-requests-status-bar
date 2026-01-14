@@ -58,24 +58,58 @@ As a developer, I want the panel to automatically refresh when I open it so that
 
 ---
 
-### User Story 4 - Pacing Guidance Display (Priority: P2)
+### User Story 4 - Pacing Guidance Display (Priority: P1) 🎯 MVP
 
 As a developer, I want to see pacing guidance (daily/weekly averages, projected usage) so that I can plan my Copilot usage for the rest of the billing period.
 
-**Why this priority**: Very valuable for users, but basic usage display (US1) is sufficient for MVP.
+**Why this priority**: Essential for usage planning - helps users understand if their current rate is sustainable.
 
-**Independent Test**: View quota card with <30 days until reset, verify pacing section shows daily/weekly averages and projected usage.
+**Independent Test**: View quota card with <30 days until reset, verify pacing section shows current daily usage vs required daily average.
 
 **Acceptance Scenarios**:
 
-1. **Given** I have a limited quota, **When** viewing a quota card, **Then** I see "To last until reset: ≤ X/day" guidance
-2. **Given** there are >7 days until reset, **When** viewing pacing, **Then** I see weekly average "≤ X/week"
-3. **Given** viewing pacing guidance, **When** quota card is displayed, **Then** I see "Reset in: Xd Xh" and exact reset date
-4. **Given** I have overage permitted, **When** viewing the quota card, **Then** I see overage status and count if any used
+1. **Given** I have a limited quota, **When** viewing a quota card, **Then** I see "Current daily average: X/day" showing actual usage rate
+2. **Given** viewing pacing guidance, **When** quota card is displayed, **Then** I see "To last until reset: ≤ X/day" showing required rate
+3. **Given** there are >7 days until reset, **When** viewing pacing, **Then** I see weekly average "≤ X/week"
+4. **Given** viewing pacing guidance, **When** quota card is displayed, **Then** I see "Reset in: Xd Xh" and exact reset date
+5. **Given** I have overage permitted, **When** viewing the quota card, **Then** I see budget usage status
 
 ---
 
-### User Story 5 - Export to Clipboard (Priority: P3)
+### User Story 5 - Budget Tracking & Configuration (Priority: P1) 🎯 MVP
+
+As a developer with a Copilot Business/Enterprise plan, I want to configure and track my premium request budget so that I can monitor overage usage and avoid unexpected costs.
+
+**Why this priority**: Critical for cost control - GitHub API doesn't expose budget limits, so manual configuration is required for accurate tracking.
+
+**Independent Test**: Configure budget to $30 (750 requests at $0.04 each), verify quota card shows "Budget Used: 400/750" and status bar shows "300/300 + 400/750 (67%)".
+
+**Acceptance Scenarios**:
+
+1. **Given** I have overage_permitted = true, **When** I set budgetDollars to 30, **Then** the budget is calculated as 750 requests ($0.04 per request)
+2. **Given** I have configured a budget, **When** viewing the quota card, **Then** I see "Included: X/Y" and "Budget Used: Z/Total" as separate lines
+3. **Given** viewing budget information, **When** quota card is displayed, **Then** the progress bar shows total usage (included + budget) / total quota (included + budget)
+4. **Given** I click "Configure Budget" button, **When** the settings open, **Then** I can input a dollar amount in budgetDollars setting
+5. **Given** I update budgetDollars or budgetRequests, **When** configuration changes, **Then** the panel auto-refreshes to show new budget
+6. **Given** viewing overage status, **When** budget is exceeded, **Then** overage is calculated from remaining field: Math.max(0, totalUsed - includedTotal)
+7. **Given** I have a budget configured, **When** viewing the status bar, **Then** I see format "300/300 + 400/750 (67%)" showing budget as fraction
+8. **Given** pacing guidance is displayed, **When** budget is configured, **Then** pacing uses total remaining (included + budget) for calculations
+9. **Given** I need to debug budget tracking, **When** I run "Debug API Response" command, **Then** I see raw API response showing overage_limit is undefined
+
+**Budget Configuration Priority**:
+1. API overage_limit (if provided - typically undefined)
+2. budgetDollars × 25 requests per dollar
+3. budgetRequests (advanced direct input)
+4. Default to 0 (no budget configured)
+
+**Pricing Information**:
+- Premium requests cost $0.04 each
+- Conversion: $1 = 25 premium requests
+- Example: $30 budget = 750 premium requests
+
+---
+
+### User Story 6 - Export to Clipboard (Priority: P3)
 
 As a developer, I want to copy usage summary to clipboard as formatted Markdown so that I can share it with my team or include in reports.
 
@@ -119,15 +153,28 @@ As a developer, I want to copy usage summary to clipboard as formatted Markdown 
 - **FR-012**: Refresh command MUST be accessible via icon in view title bar
 - **FR-013**: Refresh MUST show loading state in panel during data fetch
 - **FR-014**: Panel MUST auto-refresh when view becomes visible (onDidChangeVisibility event)
-- **FR-015**: Panel MUST display budget/overage information when available
-- **FR-016**: Pacing guidance section MUST calculate and display daily average, weekly average, reset countdown
-- **FR-017**: Panel MUST use Content Security Policy allowing only inline styles and codicon fonts
-- **FR-018**: WebviewViewProvider MUST enable scripts in webview options
-- **FR-019**: Panel MUST communicate with extension via postMessage for actions (copy, refresh)
-- **FR-020**: Copy to clipboard MUST generate formatted Markdown summary of all data
-- **FR-021**: Panel MUST be responsive and handle narrow sidebar widths gracefully
-- **FR-022**: All interactive elements MUST have tooltips explaining their purpose
-- **FR-023**: Panel MUST replace current Output Channel implementation for click action
+- **FR-015**: Panel MUST display budget/overage information when overage_permitted = true
+- **FR-016**: Extension MUST provide budgetDollars configuration setting with default value 0
+- **FR-017**: Extension MUST provide budgetRequests configuration setting for advanced users with default value 0
+- **FR-018**: Budget MUST be calculated with priority: API overage_limit → budgetDollars × 25 → budgetRequests → 0
+- **FR-019**: Quota card MUST show "Included: X/Y" and "Budget Used: Z/Total" as separate stat lines when budget is configured
+- **FR-020**: Progress bar MUST show total usage (includedUsed + budgetUsed) / total quota (includedTotal + budgetTotal)
+- **FR-021**: Overage MUST be calculated as Math.max(0, totalUsed - includedTotal) from remaining field
+- **FR-022**: Panel MUST display "Configure Budget" button when overage_permitted = true
+- **FR-023**: Configure Budget button MUST open budgetDollars setting via executeCommand
+- **FR-024**: Panel MUST auto-refresh when budgetDollars or budgetRequests configuration changes
+- **FR-025**: Status bar MUST show budget as fraction: "300/300 + 400/750 (67%)" when budget is configured
+- **FR-026**: Percentage calculation MUST use: (includedUsed + budgetUsed) / (includedTotal + budgetTotal) × 100
+- **FR-027**: Pacing guidance section MUST calculate and display current daily average, required daily average, weekly average, reset countdown
+- **FR-028**: Pacing MUST use total remaining (includedRemaining + budgetRemaining) for daily/weekly calculations
+- **FR-029**: Extension MUST provide debugApi command to inspect raw API responses
+- **FR-030**: Panel MUST use Content Security Policy allowing only inline styles and codicon fonts
+- **FR-031**: WebviewViewProvider MUST enable scripts in webview options
+- **FR-032**: Panel MUST communicate with extension via postMessage for actions (configureBudget, copy, refresh)
+- **FR-033**: Copy to clipboard MUST generate formatted Markdown summary of all data
+- **FR-034**: Panel MUST be responsive and handle narrow sidebar widths gracefully
+- **FR-035**: All interactive elements MUST have tooltips explaining their purpose
+- **FR-036**: Panel MUST replace current Output Channel implementation for click action
 
 ### Non-Functional Requirements
 
@@ -153,11 +200,18 @@ As a developer, I want to copy usage summary to clipboard as formatted Markdown 
   - `data`: any - Optional data payload
 
 - **PacingData**: Calculated pacing guidance
-  - `dailyAverage`: number - Requests per day to stay within quota
-  - `weeklyAverage`: number - Requests per week
+  - `currentDailyUsage`: number - Actual requests per day (totalUsed / daysElapsed)
+  - `dailyAverage`: number - Required requests per day to stay within quota
+  - `weeklyAverage`: number - Required requests per week
   - `daysUntilReset`: number - Days remaining in billing period
   - `hoursUntilReset`: number - Hours component of time remaining
   - `resetDate`: string - Formatted reset date
+  - `projectedTotal`: number - Projected usage at current rate
+
+- **BudgetConfiguration**: User-configurable budget settings
+  - `budgetDollars`: number - Budget in dollars (default: 0)
+  - `budgetRequests`: number - Budget in request count (advanced, default: 0)
+  - Conversion rate: $1 = 25 premium requests ($0.04 per request)
 
 ## Success Criteria *(mandatory)*
 
