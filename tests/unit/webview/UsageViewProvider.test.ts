@@ -341,4 +341,226 @@ describe('UsageViewProvider', () => {
 			expect(true).to.be.true;
 		});
 	});
+
+	describe('_shouldAutoRefresh', () => {
+		let mockWebviewView: any;
+		let mockContext: any;
+
+		beforeEach(() => {
+			mockWebviewView = createMockWebviewView();
+			mockContext = createMockWebviewViewResolveContext();
+			
+			const mockUsageData = {
+				includedUsed: 500,
+				includedTotal: 2000,
+				budgetUsed: 0,
+				budgetTotal: 0,
+				lastRefreshTime: Date.now(),
+				billingPeriodEnd: new Date().toISOString(),
+			};
+
+			const mockApiResponse = {
+				copilot_plan: 'Business',
+				chat_enabled: true,
+				organization_list: [{ login: 'org1', name: 'Org 1' }],
+				quota_snapshots: {
+					premium_interactions: {
+						quota_id: 'premium_interactions',
+						entitlement: 2000,
+						remaining: 1500,
+						quota_remaining: 1500,
+					},
+				},
+				quota_reset_date_utc: new Date().toISOString(),
+			};
+
+			// Mock API client methods
+			const fetchUsageStub = stub().resolves({ raw: mockApiResponse, data: mockUsageData });
+			mockApiClient = {
+				fetchUsage: stub().resolves(mockUsageData),
+				fetchUsageWithRaw: fetchUsageStub,
+				dispose: stub(),
+			} as any;
+
+			// Mock auth service methods
+			const getTokenStub = stub().resolves('mock-token');
+			mockAuthService = {
+				getToken: getTokenStub,
+				dispose: stub(),
+			} as any;
+
+			provider = new UsageViewProvider(extensionUri, mockApiClient, mockAuthService, mockOutputChannel);
+			provider.resolveWebviewView(mockWebviewView, mockContext, {} as vscode.CancellationToken);
+		});
+
+		it('should return false if refresh is already in progress', () => {
+			// Set refresh state to true
+			(provider as any)._isRefreshing = true;
+			
+			const result = (provider as any)._shouldAutoRefresh();
+			
+			expect(result).to.be.false;
+		});
+
+		it('should return false if data was fetched less than 5 minutes ago', () => {
+			// Set last fetch time to 2 minutes ago
+			(provider as any)._lastFetchTime = Date.now() - (2 * 60 * 1000);
+			(provider as any)._isRefreshing = false;
+			
+			const result = (provider as any)._shouldAutoRefresh();
+			
+			expect(result).to.be.false;
+		});
+
+		it('should return true if data was fetched more than 5 minutes ago', () => {
+			// Set last fetch time to 6 minutes ago
+			(provider as any)._lastFetchTime = Date.now() - (6 * 60 * 1000);
+			(provider as any)._isRefreshing = false;
+			
+			const result = (provider as any)._shouldAutoRefresh();
+			
+			expect(result).to.be.true;
+		});
+
+		it('should return true if data has never been fetched', () => {
+			// Set last fetch time to 0 (never fetched)
+			(provider as any)._lastFetchTime = 0;
+			(provider as any)._isRefreshing = false;
+			
+			const result = (provider as any)._shouldAutoRefresh();
+			
+			expect(result).to.be.true;
+		});
+
+		it('should return false if data is exactly 5 minutes old (boundary)', () => {
+			// Set last fetch time to exactly 5 minutes ago
+			(provider as any)._lastFetchTime = Date.now() - (5 * 60 * 1000);
+			(provider as any)._isRefreshing = false;
+			
+			const result = (provider as any)._shouldAutoRefresh();
+			
+			expect(result).to.be.false;
+		});
+	});
+
+	describe('onDidChangeVisibility handler', () => {
+		let mockWebviewView: any;
+		let mockContext: any;
+		let visibilityHandler: any;
+		let fetchUsageStub: any;
+		let getTokenStub: any;
+
+		beforeEach(async () => {
+			mockWebviewView = createMockWebviewView();
+			mockContext = createMockWebviewViewResolveContext();
+			
+			const mockUsageData = {
+				includedUsed: 500,
+				includedTotal: 2000,
+				budgetUsed: 0,
+				budgetTotal: 0,
+				lastRefreshTime: Date.now(),
+				billingPeriodEnd: new Date().toISOString(),
+			};
+
+			const mockApiResponse = {
+				copilot_plan: 'Business',
+				chat_enabled: true,
+				organization_list: [{ login: 'org1', name: 'Org 1' }],
+				quota_snapshots: {
+					premium_interactions: {
+						quota_id: 'premium_interactions',
+						entitlement: 2000,
+						remaining: 1500,
+						quota_remaining: 1500,
+					},
+				},
+				quota_reset_date_utc: new Date().toISOString(),
+			};
+
+			// Mock API client methods
+			fetchUsageStub = stub().resolves({ raw: mockApiResponse, data: mockUsageData });
+			mockApiClient = {
+				fetchUsage: stub().resolves(mockUsageData),
+				fetchUsageWithRaw: fetchUsageStub,
+				dispose: stub(),
+			} as any;
+
+			// Mock auth service methods
+			getTokenStub = stub().resolves('mock-token');
+			mockAuthService = {
+				getToken: getTokenStub,
+				dispose: stub(),
+			} as any;
+
+			provider = new UsageViewProvider(extensionUri, mockApiClient, mockAuthService, mockOutputChannel);
+			provider.resolveWebviewView(mockWebviewView, mockContext, {} as vscode.CancellationToken);
+			
+			// Get the registered visibility handler
+			visibilityHandler = mockWebviewView.onDidChangeVisibility.firstCall.args[0];
+			
+			// Wait for initial refresh to complete and then reset stub history
+			await new Promise(resolve => setTimeout(resolve, 50));
+			fetchUsageStub.resetHistory();
+		});
+
+		it('should trigger refresh when view becomes visible and data is stale', async () => {
+			// Set up stale data (>5 minutes old)
+			(provider as any)._lastFetchTime = Date.now() - (6 * 60 * 1000);
+			mockWebviewView.visible = true;
+			
+			await visibilityHandler();
+			
+			expect(fetchUsageStub.called).to.be.true;
+		});
+
+		it('should skip refresh when view becomes visible but data is fresh', async () => {
+			// Set up fresh data (<5 minutes old)
+			(provider as any)._lastFetchTime = Date.now() - (2 * 60 * 1000);
+			mockWebviewView.visible = true;
+			
+			// Reset stub call count
+			fetchUsageStub.resetHistory();
+			
+			await visibilityHandler();
+			
+			// Wait a bit to ensure async operations complete
+			await new Promise(resolve => setTimeout(resolve, 10));
+			
+			expect(fetchUsageStub.called).to.be.false;
+		});
+
+		it('should skip refresh when refresh is already in progress', async () => {
+			// Set up stale data but refresh in progress
+			(provider as any)._lastFetchTime = Date.now() - (6 * 60 * 1000);
+			(provider as any)._isRefreshing = true;
+			mockWebviewView.visible = true;
+			
+			// Reset stub call count
+			fetchUsageStub.resetHistory();
+			
+			await visibilityHandler();
+			
+			// Wait a bit to ensure async operations complete
+			await new Promise(resolve => setTimeout(resolve, 10));
+			
+			expect(fetchUsageStub.called).to.be.false;
+		});
+
+		it('should not refresh when view is not visible', async () => {
+			// Set up stale data but view is not visible
+			(provider as any)._lastFetchTime = Date.now() - (6 * 60 * 1000);
+			mockWebviewView.visible = false;
+			
+			// Reset stub call count
+			fetchUsageStub.resetHistory();
+			
+			await visibilityHandler();
+			
+			// Wait a bit to ensure async operations complete
+			await new Promise(resolve => setTimeout(resolve, 10));
+			
+			expect(fetchUsageStub.called).to.be.false;
+		});
+	});
 });

@@ -107,7 +107,7 @@
 
 ---
 
-## Phase 5: User Story 3 - Auto-refresh on Visibility (Priority: P2)
+## Phase 5: User Story 3 - Auto-refresh on Visibility (Priority: P2) ✅ COMPLETE
 
 **Goal**: Automatically refresh data when sidebar becomes visible if data is stale (>5 minutes old)
 
@@ -115,13 +115,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T043 [P] [US3] Write failing tests for _shouldAutoRefresh() in tests/unit/webview/UsageViewProvider.test.ts (checks refresh state, checks last fetch time, returns true if >5 min old)
-- [ ] T044 [P] [US3] Implement _shouldAutoRefresh() method in src/webview/UsageViewProvider.ts
-- [ ] T045 [US3] Write failing tests for onDidChangeVisibility handler in tests/unit/webview/UsageViewProvider.test.ts (triggers refresh when visible, skips if not stale, skips if already refreshing)
-- [ ] T046 [US3] Implement onDidChangeVisibility listener in resolveWebviewView() in src/webview/UsageViewProvider.ts
-- [ ] T047 [US3] Verify manual test: Close sidebar, wait 5+ minutes, reopen, confirm auto-refresh occurs
+- [X] T043 [P] [US3] Write failing tests for _shouldAutoRefresh() in tests/unit/webview/UsageViewProvider.test.ts (checks refresh state, checks last fetch time, returns true if >5 min old)
+- [X] T044 [P] [US3] Implement _shouldAutoRefresh() method in src/webview/UsageViewProvider.ts
+- [X] T045 [US3] Write failing tests for onDidChangeVisibility handler in tests/unit/webview/UsageViewProvider.test.ts (triggers refresh when visible, skips if not stale, skips if already refreshing)
+- [X] T046 [US3] Implement onDidChangeVisibility listener in resolveWebviewView() in src/webview/UsageViewProvider.ts
+- [X] T047 [US3] Verify manual test: Close sidebar, wait 5+ minutes, reopen, confirm auto-refresh occurs
 
-**Checkpoint**: User Story 3 complete - auto-refresh works when sidebar becomes visible
+**Checkpoint**: User Story 3 complete - auto-refresh works when sidebar becomes visible (>5 min staleness threshold)
 
 ---
 

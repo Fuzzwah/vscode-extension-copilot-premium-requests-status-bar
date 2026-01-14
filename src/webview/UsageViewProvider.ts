@@ -17,7 +17,6 @@ export class UsageViewProvider implements vscode.WebviewViewProvider {
 	private _apiResponse?: GitHubCopilotApiResponse;
 	// @ts-expect-error - Will be used in later phases
 	private _usageData?: UsageData;
-	// @ts-expect-error - Will be read in Phase 5 for auto-refresh logic
 	private _lastFetchTime: number = 0;
 	private _isRefreshing: boolean = false;
 
@@ -43,8 +42,10 @@ export class UsageViewProvider implements vscode.WebviewViewProvider {
 
 		// Register event listeners
 		webviewView.onDidChangeVisibility(() => {
-			if (webviewView.visible) {
-				// Auto-refresh logic will be added in Phase 5 (US3)
+			if (webviewView.visible && this._shouldAutoRefresh()) {
+				this.refresh().catch(error => {
+					this._outputChannel.appendLine(`Error during auto-refresh: ${error}`);
+				});
 			}
 		});
 
@@ -137,6 +138,23 @@ export class UsageViewProvider implements vscode.WebviewViewProvider {
 		} finally {
 			this._isRefreshing = false;
 		}
+	}
+
+	/**
+	 * Determines if auto-refresh should be triggered
+	 * @returns True if data is stale (>5 minutes) and no refresh is in progress
+	 */
+	private _shouldAutoRefresh(): boolean {
+		// Don't refresh if already refreshing
+		if (this._isRefreshing) {
+			return false;
+		}
+
+		// Auto-refresh if data is older than 5 minutes
+		const STALE_DATA_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
+		const timeSinceLastFetch = Date.now() - this._lastFetchTime;
+		
+		return timeSinceLastFetch > STALE_DATA_THRESHOLD;
 	}
 
 	/**
