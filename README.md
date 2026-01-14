@@ -1,13 +1,17 @@
 # Copilot Premium Requests Status Bar
 
-A Visual Studio Code extension that displays your current GitHub Copilot premium request usage directly in the status bar, helping you track both included and budget requests at a glance.
+A Visual Studio Code extension that displays your current GitHub Copilot premium request usage directly in the status bar, with a rich sidebar panel for detailed tracking of both included and budget requests.
 
 ## Features
 
-- **Real-time Usage Tracking**: Monitor your GitHub Copilot premium request consumption
-- **Dual Metrics Display**: Separate counters for included requests and budget-based requests
-- **Status Bar Integration**: Unobtrusive display in the VS Code status bar
-- **At-a-Glance Visibility**: Know exactly where you stand with your request limits without leaving your editor
+- 📊 **Rich Sidebar Panel**: Interactive webview panel with color-coded progress bars and detailed usage statistics
+- 💰 **Budget Tracking**: Configure and monitor your premium request budget with dollar-based input
+- 📈 **Pacing Guidance**: See current vs required daily usage to stay within your quota
+- 🔄 **Auto-refresh**: Automatically updates when sidebar becomes visible after 5+ minutes
+- 📋 **Clipboard Export**: Copy usage summary as formatted Markdown
+- 🔐 **Secure Authentication**: Uses GitHub OAuth web flow (no manual tokens required)
+- 💡 **Status Bar Integration**: Compact display with detailed tooltip on hover
+- 🎨 **VS Code Theming**: Automatically adapts to your VS Code theme
 
 ## Installation
 
@@ -23,69 +27,123 @@ A Visual Studio Code extension that displays your current GitHub Copilot premium
 1. Clone this repository
 2. Run `npm install` to install dependencies
 3. Press `F5` to open a new VS Code window with the extension loaded
-4. Test the extension in the Extension Development Host
 
 ## Usage
 
-Once installed, the extension automatically displays your premium request usage in the status bar:
+### Authentication
 
-- **Included Requests**: Shows usage against your plan's included quota
-- **Budget Requests**: Displays any additional requests charged to your budget
+When you first start using the extension, you'll be prompted to authenticate with GitHub:
 
-Click on the status bar item for more detailed information about your usage.
+1. Click on the status bar item when it shows "Auth Required"
+2. Or run the command: `Copilot Premium Requests: Authenticate`
+3. Follow the GitHub OAuth flow in your browser
+4. Return to VS Code - you're now authenticated!
+
+### Status Bar Display
+
+Once authenticated, the status bar shows your usage:
+
+```
+Copilot: 300/300 + 400/750 (67%)
+```
+
+This displays:
+- **Included**: 300/300 (fully used)
+- **Budget**: 400/750 (53% of budget used)
+- **Overall**: 67% of total quota consumed
+
+### Sidebar Panel
+
+Click the Copilot icon in the Activity Bar to open the rich sidebar panel showing:
+
+- **Color-coded progress bars** (green <50%, yellow 50-80%, red >80%)
+- **Included vs Budget breakdown** with separate stat lines
+- **Pacing guidance**: Current daily usage (40/day) vs Required rate (≤21/day)
+- **Reset countdown** and exact reset date
+- **Interactive buttons**: Refresh, Copy Summary, Configure Budget
+
+### Budget Configuration
+
+Configure your premium request budget:
+
+1. Click "Configure Budget" in the sidebar panel
+2. Set `budgetDollars` to your budget amount (e.g., $30 = 750 requests @ $0.04/request)
+3. The panel automatically refreshes to show your budget tracking
+
+### Commands
+
+- `Copilot Premium Requests: Authenticate` - Authenticate with GitHub
+- `Copilot Premium Requests: Refresh` - Manually refresh usage data
+- `Copilot Premium Requests: Show Details` - Open the sidebar panel
+- `Copilot Premium Requests: Debug API Response` - Inspect raw API data
+
+## Extension Settings
+
+This extension contributes the following settings:
+
+- `copilotPremiumRequests.budgetDollars`: Your premium request budget in dollars (default: 0)
+- `copilotPremiumRequests.budgetRequests`: Advanced - direct request count budget (default: 0)
+- `copilotPremiumRequests.refreshInterval`: Auto-refresh interval in seconds (default: 300)
+- `copilotPremiumRequests.warningThreshold`: Warning threshold percentage (default: 90)
+- `copilotPremiumRequests.displayFormat`: Status bar display format (default: "compact")
 
 ## Requirements
 
 - Visual Studio Code version 1.85.0 or higher
 - Active GitHub Copilot subscription with premium features
 
-## Extension Settings
-
-This extension contributes the following settings:
-
-- `copilotPremiumRequests.refreshInterval`: Set the refresh interval (in seconds) for updating usage statistics (default: 60)
-- `copilotPremiumRequests.showInStatusBar`: Enable/disable the status bar display (default: true)
-- `copilotPremiumRequests.displayFormat`: Choose how usage is displayed (default: "compact")
-
-## Known Issues
-
-This extension is currently in development. Please report any issues on the [GitHub Issues page](https://github.com/fuzzwah/vscode-extension-copilot-premium-requests-status-bar/issues).
-
 ## Development
 
 ### Building from Source
 
 ```bash
-# Clone the repository
 git clone https://github.com/fuzzwah/vscode-extension-copilot-premium-requests-status-bar.git
-
-# Navigate to the project directory
 cd vscode-extension-copilot-premium-requests-status-bar
-
-# Install dependencies
 npm install
-
-# Compile the extension
 npm run compile
+```
 
-# Run tests
-npm test
+### Running Tests
+
+```bash
+npm test              # Run all tests
+npm run test:unit     # Run unit tests only
+```
+
+### Packaging
+
+```bash
+npm install -g @vscode/vsce
+vsce package
 ```
 
 ### Project Structure
 
 ```
 .
-├── src/              # Source code
-├── test/             # Test files
-├── .vscode/          # VS Code configuration
-├── LICENSE           # GPL-3.0 License
-└── README.md         # This file
+├── src/
+│   ├── api/              # API client and authentication
+│   ├── statusBar/        # Status bar controller and formatter
+│   ├── webview/          # Sidebar panel and HTML generation
+│   └── extension.ts      # Extension entry point
+├── tests/
+│   ├── unit/             # Unit tests
+│   └── integration/      # Integration tests
+├── specs/                # Feature specifications
+└── README.md
 ```
+
+## Privacy
+
+This extension:
+- Only requests GitHub scopes necessary for reading user information
+- Does not collect or store any data outside of VS Code
+- Uses VS Code's secure secret storage for authentication tokens
+- All data processing happens locally
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -93,28 +151,27 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## Known Issues
+
+- GitHub Copilot API is internal/undocumented - may change without notice
+- Budget limit (`overage_limit`) not exposed by API - requires manual configuration
+- Some API fields (like `overage_count`) may be unreliable
+
+Please report any issues on the [GitHub Issues page](https://github.com/fuzzwah/vscode-extension-copilot-premium-requests-status-bar/issues).
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
-
-- Thanks to the GitHub Copilot team for creating an amazing AI pair programming tool
-- Built with the VS Code Extension API
-
-## Support
-
-If you encounter any issues or have questions:
-
-- Open an issue on [GitHub](https://github.com/fuzzwah/vscode-extension-copilot-premium-requests-status-bar/issues)
-- Check existing issues for solutions
-
 ## Changelog
 
-### [Unreleased]
-- Initial development
-- Basic status bar integration
-- Premium request tracking functionality
+### [0.1.0] - Unreleased
+- Rich webview sidebar panel with interactive UI
+- Budget tracking and configuration
+- Pacing guidance with current vs required usage
+- Auto-refresh on visibility
+- Clipboard export (Markdown summary)
+- Comprehensive test suite (156 tests)
 
 ---
 
