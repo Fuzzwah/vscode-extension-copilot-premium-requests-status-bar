@@ -170,7 +170,7 @@
 
 ---
 
-## Phase 7: User Story 5 - Export to Clipboard (Priority: P3)
+## Phase 7: User Story 5 - Export to Clipboard (Priority: P3) ✅ COMPLETE
 
 **Goal**: Add "Copy Summary" button that exports usage data as formatted Markdown to clipboard
 
@@ -178,18 +178,18 @@
 
 ### Implementation for User Story 5
 
-- [ ] T052 [P] [US5] Write failing tests for formatMarkdownSummary() in tests/unit/webview/WebviewMessageHandler.test.ts (Markdown with headers, bullet points, quota data, plan details, timestamp, budget info, unlimited handling)
-- [ ] T053 [P] [US5] Create src/webview/WebviewMessageHandler.ts and implement formatMarkdownSummary()
-- [ ] T054 [P] [US5] Write failing tests for handleMessage() in tests/unit/webview/WebviewMessageHandler.test.ts (handles 'copy' command, copies to clipboard, shows notification, handles 'refresh', handles unknown commands, logs errors)
-- [ ] T055 [US5] Implement handleMessage() in src/webview/WebviewMessageHandler.ts
-- [ ] T056 [US5] Write failing tests for _handleMessage() wrapper in tests/unit/webview/UsageViewProvider.test.ts (routes to WebviewMessageHandler, catches errors)
-- [ ] T057 [US5] Implement _handleMessage() in src/webview/UsageViewProvider.ts that calls handleMessage from WebviewMessageHandler
-- [ ] T058 [US5] Register onDidReceiveMessage listener in resolveWebviewView() in src/webview/UsageViewProvider.ts
-- [ ] T059 [US5] Add "Copy Summary" button to HTML template in generateHtml() in src/webview/WebviewHtmlGenerator.ts with postMessage script
-- [ ] T060 [US5] Add postMessage script for copy button click in generateHtml() in src/webview/WebviewHtmlGenerator.ts
-- [ ] T061 [US5] Verify manual test: Click "Copy Summary", paste into editor, confirm formatted Markdown appears
+- [X] T052 [P] [US5] Write failing tests for formatMarkdownSummary() in tests/unit/webview/WebviewMessageHandler.test.ts (Markdown with headers, bullet points, quota data, plan details, timestamp, budget info, unlimited handling)
+- [X] T053 [P] [US5] Create src/webview/WebviewMessageHandler.ts and implement formatMarkdownSummary()
+- [X] T054 [P] [US5] Write failing tests for handleMessage() in tests/unit/webview/WebviewMessageHandler.test.ts (handles 'copy' command, copies to clipboard, shows notification, handles 'refresh', handles unknown commands, logs errors)
+- [X] T055 [US5] Implement handleMessage() in src/webview/WebviewMessageHandler.ts
+- [X] T056 [US5] Write failing tests for _handleMessage() wrapper in tests/unit/webview/UsageViewProvider.test.ts (routes to WebviewMessageHandler, catches errors)
+- [X] T057 [US5] Implement _handleMessage() in src/webview/UsageViewProvider.ts that calls handleMessage from WebviewMessageHandler
+- [X] T058 [US5] Register onDidReceiveMessage listener in resolveWebviewView() in src/webview/UsageViewProvider.ts
+- [X] T059 [US5] Add "Copy Summary" button to HTML template in generateHtml() in src/webview/WebviewHtmlGenerator.ts with postMessage script
+- [X] T060 [US5] Add postMessage script for copy button click in generateHtml() in src/webview/WebviewHtmlGenerator.ts
+- [X] T061 [US5] Verify manual test: Click "Copy Summary", paste into editor, confirm formatted Markdown appears
 
-**Checkpoint**: User Story 5 complete - clipboard export functional
+**Checkpoint**: User Story 5 complete - clipboard export with formatted Markdown (headers, quotas, plan details, timestamp)
 
 ---
 

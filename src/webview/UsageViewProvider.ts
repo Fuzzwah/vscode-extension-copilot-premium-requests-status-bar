@@ -8,14 +8,13 @@ import { GitHubAuthService } from '../api/GitHubAuthService';
 import { GitHubCopilotApiResponse } from '../api/types';
 import { UsageData } from '../statusBar/types';
 import { generateHtml } from './WebviewHtmlGenerator';
+import { handleMessage } from './WebviewMessageHandler';
 
 export class UsageViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'copilotPremiumRequests.usageView';
 
 	private _view?: vscode.WebviewView;
-	// @ts-expect-error - Will be read in Phase 5 for auto-refresh
 	private _apiResponse?: GitHubCopilotApiResponse;
-	// @ts-expect-error - Will be used in later phases
 	private _usageData?: UsageData;
 	private _lastFetchTime: number = 0;
 	private _isRefreshing: boolean = false;
@@ -55,8 +54,13 @@ export class UsageViewProvider implements vscode.WebviewViewProvider {
 			if (message.command === 'configureBudget') {
 				this._outputChannel.appendLine('Opening budget configuration settings');
 				await vscode.commands.executeCommand('workbench.action.openSettings', 'copilotPremiumRequests.budgetDollars');
+				return;
 			}
-			// Other message handling will be added in Phase 7 (US5)
+			
+			// Handle other messages (copy, refresh, etc.)
+			if (this._apiResponse && this._usageData) {
+				await handleMessage(message, this._apiResponse, this._usageData, this._outputChannel);
+			}
 		});
 
 		// Show loading state initially
