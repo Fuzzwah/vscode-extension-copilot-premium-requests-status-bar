@@ -179,6 +179,7 @@ describe('WebviewHtmlGenerator', () => {
 		const mockPacing: PacingData = {
 			dailyAverage: 50,
 			weeklyAverage: 350,
+			currentDailyUsage: 40,
 			daysUntilReset: 14, // More than 7 days to show weekly average
 			hoursUntilReset: 12,
 			resetDate: 'Jan 20, 2026',

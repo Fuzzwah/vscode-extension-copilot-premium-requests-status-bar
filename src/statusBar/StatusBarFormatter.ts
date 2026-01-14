@@ -8,14 +8,14 @@ export class StatusBarFormatter {
   /**
    * Format usage data into compact text.
    * Format: "Copilot: {used}/{total} ({percent}%)"
-   * With budget: "Copilot: {used}/{total} + {budget} budget ({percent}%)"
+   * With budget: "Copilot: {used}/{total} + {budgetUsed}/{budgetTotal} ({percent}%)"
    */
   public formatCompact(data: UsageData, showIcon: boolean): string {
     const percent = this.calculatePercentage(data);
     let text = `Copilot: ${data.includedUsed}/${data.includedTotal} (${percent}%)`;
     
-    if (data.budgetUsed > 0) {
-      text = `Copilot: ${data.includedUsed}/${data.includedTotal} + ${data.budgetUsed} budget (${percent}%)`;
+    if (data.budgetUsed > 0 || data.budgetTotal > 0) {
+      text = `Copilot: ${data.includedUsed}/${data.includedTotal} + ${data.budgetUsed}/${data.budgetTotal} (${percent}%)`;
     }
     
     if (showIcon) {

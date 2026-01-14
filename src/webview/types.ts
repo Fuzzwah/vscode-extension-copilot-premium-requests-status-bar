@@ -18,6 +18,8 @@ export interface PacingData {
 	dailyAverage: number;
 	/** Requests per week to stay within quota */
 	weeklyAverage: number;
+	/** Current actual daily usage rate */
+	currentDailyUsage: number;
 	/** Days remaining in billing period */
 	daysUntilReset: number;
 	/** Hours component of time remaining */

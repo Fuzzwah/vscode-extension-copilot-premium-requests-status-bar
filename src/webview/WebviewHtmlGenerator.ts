@@ -82,6 +82,11 @@ export function calculatePacing(quota: QuotaSnapshot, resetDateUtc: string, budg
 	const daysUntilReset = Math.floor(msUntilReset / (1000 * 60 * 60 * 24));
 	const hoursUntilReset = Math.floor((msUntilReset % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 	
+	// Calculate current daily usage (assuming 30-day billing cycle)
+	const totalBillingDays = 30;
+	const daysElapsed = Math.max(1, totalBillingDays - daysUntilReset);
+	const currentDailyUsage = Math.round(totalUsed / daysElapsed);
+	
 	// Calculate pacing based on total remaining (included + budget)
 	const totalDays = Math.max(daysUntilReset, 1); // Avoid division by zero
 	const dailyAverage = Math.ceil(totalRemaining / totalDays);
@@ -94,6 +99,7 @@ export function calculatePacing(quota: QuotaSnapshot, resetDateUtc: string, budg
 	return {
 		dailyAverage,
 		weeklyAverage,
+		currentDailyUsage,
 		daysUntilReset,
 		hoursUntilReset,
 		resetDate: resetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -109,6 +115,10 @@ export function calculatePacing(quota: QuotaSnapshot, resetDateUtc: string, budg
 export function generatePacingGuidance(pacing: PacingData): string {
 	return `
 		<div class="pacing-guidance">
+			<div class="pacing-item">
+				<span class="pacing-label">Current daily average:</span>
+				<span class="pacing-value">${formatNumber(pacing.currentDailyUsage)}/day</span>
+			</div>
 			<div class="pacing-item">
 				<span class="pacing-label">To last until reset:</span>
 				<span class="pacing-value">≤ ${formatNumber(pacing.dailyAverage)}/day</span>
