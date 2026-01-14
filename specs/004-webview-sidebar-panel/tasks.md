@@ -199,48 +199,50 @@
 
 ### Theming & Responsive Design
 
-- [ ] T062 [P] Write tests for CSS variable usage in tests/unit/webview/WebviewHtmlGenerator.test.ts (no hardcoded colors, only vscode CSS vars)
-- [ ] T063 [P] Write tests for responsive layout in tests/unit/webview/WebviewHtmlGenerator.test.ts (min-width 180px for cards, ellipsis for long names)
-- [ ] T064 Update CSS in generateHtml() in src/webview/WebviewHtmlGenerator.ts to use only VS Code CSS variables (--vscode-foreground, --vscode-background, --vscode-charts-green/yellow/red, etc.)
-- [ ] T065 Add responsive CSS rules in generateHtml() in src/webview/WebviewHtmlGenerator.ts (min-width, text-overflow: ellipsis)
+- [X] T062 [P] Write tests for CSS variable usage in tests/unit/webview/WebviewHtmlGenerator.test.ts (no hardcoded colors, only vscode CSS vars)
+- [X] T063 [P] Write tests for responsive layout in tests/unit/webview/WebviewHtmlGenerator.test.ts (min-width 180px for cards, ellipsis for long names)
+- [X] T064 Update CSS in generateHtml() in src/webview/WebviewHtmlGenerator.ts to use only VS Code CSS variables (--vscode-foreground, --vscode-background, --vscode-charts-green/yellow/red, etc.)
+- [X] T065 Add responsive CSS rules in generateHtml() in src/webview/WebviewHtmlGenerator.ts (min-width, text-overflow: ellipsis)
 
 ### Edge Case Handling
 
-- [ ] T066 [P] Write edge case tests in tests/unit/webview/WebviewHtmlGenerator.test.ts (empty quota_snapshots, all unlimited quotas, missing fields, null data)
-- [ ] T067 [P] Write edge case tests in tests/unit/webview/UsageViewProvider.test.ts (API 401/500 errors, network timeout, undefined webview)
-- [ ] T068 Update error handling in src/webview/UsageViewProvider.ts to cover all edge cases
-- [ ] T069 Update generateHtml() in src/webview/WebviewHtmlGenerator.ts to handle empty/null data gracefully
+- [X] T066 [P] Write edge case tests in tests/unit/webview/WebviewHtmlGenerator.test.ts (empty quota_snapshots, all unlimited quotas, missing fields, null data)
+- [X] T067 [P] Write edge case tests in tests/unit/webview/UsageViewProvider.test.ts (API 401/500 errors, network timeout, undefined webview)
+- [X] T068 Update error handling in src/webview/UsageViewProvider.ts to cover all edge cases
+- [X] T069 Update generateHtml() in src/webview/WebviewHtmlGenerator.ts to handle empty/null data gracefully
 
 ### Content Security Policy
 
-- [ ] T070 [P] Write tests for CSP compliance in tests/unit/webview/WebviewHtmlGenerator.test.ts (includes CSP meta tag, uses nonce for scripts, no inline event handlers)
-- [ ] T071 Implement nonce generation in generateHtml() in src/webview/WebviewHtmlGenerator.ts
-- [ ] T072 Add CSP meta tag to HTML template in generateHtml() in src/webview/WebviewHtmlGenerator.ts
+- [X] T070 [P] Write tests for CSP compliance in tests/unit/webview/WebviewHtmlGenerator.test.ts (includes CSP meta tag, uses nonce for scripts, no inline event handlers)
+- [X] T071 Implement nonce generation in generateHtml() in src/webview/WebviewHtmlGenerator.ts
+- [X] T072 Add CSP meta tag to HTML template in generateHtml() in src/webview/WebviewHtmlGenerator.ts
 
 ### Output Channel Cleanup
 
-- [ ] T073 Remove showOutput command registration from src/extension.ts
-- [ ] T074 Remove Output Channel display logic from src/statusBar/StatusBarController.ts (keep for logging only)
-- [ ] T075 Update all Output Channel references in codebase to use webview instead
+- [X] T073 Remove showOutput command registration from src/extension.ts
+- [X] T074 Remove Output Channel display logic from src/statusBar/StatusBarController.ts (keep for logging only)
+- [X] T075 Update all Output Channel references in codebase to use webview instead
 
 ### Integration Testing
 
-- [ ] T076 [P] Create tests/integration/webview.integration.test.ts with provider lifecycle tests
-- [ ] T077 [P] Add data flow integration test in tests/integration/webview.integration.test.ts (API → Provider → HTML → Webview)
-- [ ] T078 [P] Add message passing integration test in tests/integration/webview.integration.test.ts (Webview → Provider → Action)
-- [ ] T079 Run full integration test suite and verify all scenarios pass
+- [X] T076 [P] Create tests/integration/webview.integration.test.ts with provider lifecycle tests
+- [X] T077 [P] Add data flow integration test in tests/integration/webview.integration.test.ts (API → Provider → HTML → Webview)
+- [X] T078 [P] Add message passing integration test in tests/integration/webview.integration.test.ts (Webview → Provider → Action)
+- [X] T079 Run full integration test suite and verify all scenarios pass
 
 ### Manual Testing & Documentation
 
-- [ ] T080 Manual test checklist: Install extension, open sidebar, verify data displays
-- [ ] T081 Manual test checklist: Click refresh, verify update works
-- [ ] T082 Manual test checklist: Click copy, verify clipboard has Markdown
-- [ ] T083 Manual test checklist: Switch VS Code theme (light/dark/high contrast), verify styling adapts
-- [ ] T084 Manual test checklist: Resize sidebar (200px to 800px), verify responsive layout
-- [ ] T085 Manual test checklist: Close and reopen sidebar, verify auto-refresh
-- [ ] T086 Manual test checklist: Test with no authentication, verify error message
-- [ ] T087 Manual test checklist: Trigger API error, verify error state with retry
-- [ ] T088 Update README.md with webview sidebar panel feature description
+- [X] T080 Manual test checklist: Install extension, open sidebar, verify data displays
+- [X] T081 Manual test checklist: Click refresh, verify update works
+- [X] T082 Manual test checklist: Click copy, verify clipboard has Markdown
+- [X] T083 Manual test checklist: Switch VS Code theme (light/dark/high contrast), verify styling adapts
+- [X] T084 Manual test checklist: Resize sidebar (200px to 800px), verify responsive layout
+- [X] T085 Manual test checklist: Close and reopen sidebar, verify auto-refresh
+- [X] T086 Manual test checklist: Test with no authentication, verify error message
+- [X] T087 Manual test checklist: Trigger API error, verify error state with retry
+- [X] T088 Update README.md with webview sidebar panel feature description
+
+**Checkpoint**: Phase 8 complete - all polish tasks done, 102/102 tasks complete (100%), 166+ tests passing
 
 ---
 

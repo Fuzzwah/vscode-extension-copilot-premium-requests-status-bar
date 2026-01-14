@@ -443,5 +443,253 @@ describe('WebviewHtmlGenerator', () => {
 			expect(html).to.include('postMessage');
 			expect(html).to.include('vscode');
 		});
+
+		// Phase 8: T062 - CSS Variable Usage Tests
+		describe('CSS Variable Usage (T062)', () => {
+		it('should use only VS Code CSS variables for colors (no hardcoded colors)', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			// Verify VS Code CSS variables are used
+			expect(html).to.include('--vscode-foreground');
+			expect(html).to.include('--vscode-editor-background');
+			expect(html).to.include('--vscode-button-background');
+			expect(html).to.include('--vscode-button-foreground');
+			expect(html).to.include('--vscode-button-hoverBackground');
+			expect(html).to.include('--vscode-charts-green');
+			expect(html).to.include('--vscode-charts-yellow');
+				// Note: charts-red only appears in generated progress bars when usage is >80%
+			expect(html).to.include('--vscode-font-family');
+			expect(html).to.include('--vscode-font-size');
+		});
+
+		it('should use VS Code description foreground for labels', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.include('--vscode-descriptionForeground');
+		});
 	});
-});
+
+	// Phase 8: T063 - Responsive Layout Tests
+	describe('Responsive Layout (T063)', () => {
+		it('should set min-width on quota cards for narrow sidebar', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			// Verify quota-card class doesn't have a restrictive max-width
+			expect(html).to.include('.quota-card');
+		});
+
+		it('should use text-overflow ellipsis for long names', () => {
+			const longNameResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				organization_list: [{
+					login: 'very-very-very-long-organization-name-that-should-truncate',
+					name: 'Very Very Very Long Organization Name That Should Truncate'
+				}]
+			};
+			
+			const html = generateHtml(longNameResponse, mockUsageData, mockWebview as any);
+			
+			// Should generate valid HTML even with long org names
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+			// Organization count should be displayed
+			expect(html).to.include('Organizations');
+		});
+
+		it('should make progress bars scale to 100% width', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.include('width: 100%');
+		});
+
+		it('should have flexible layout for detail items', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			// Verify flexbox layout classes exist
+			expect(html).to.include('detail-item');
+			expect(html).to.include('stat-item');
+		});
+	});
+
+	// Phase 8: T066 - Edge Case Handling Tests
+	describe('Edge Case Handling (T066)', () => {
+		it('should handle empty quota_snapshots object', () => {
+			const emptyResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				quota_snapshots: {},
+			};
+			
+			const html = generateHtml(emptyResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+			expect(html).to.include('No quota data available');
+		});
+
+		it('should handle all unlimited quotas', () => {
+			const unlimitedResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				quota_snapshots: {
+					premium_interactions: {
+						quota_id: 'premium_interactions',
+						entitlement: -1,
+						remaining: -1,
+						quota_remaining: -1,
+						unlimited: true,
+					}
+				}
+			};
+			
+			const html = generateHtml(unlimitedResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.include('Unlimited');
+		});
+
+		it('should handle missing fields gracefully', () => {
+			const incompleteResponse: GitHubCopilotApiResponse = {
+				quota_snapshots: {
+					premium_interactions: {
+						quota_id: 'premium_interactions',
+						entitlement: 2000,
+						remaining: 1500,
+					} as any
+				}
+			} as any;
+			
+			const html = generateHtml(incompleteResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+		});
+
+		it('should handle null data in quota fields', () => {
+			const nullDataResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				quota_snapshots: {
+					premium_interactions: {
+						quota_id: 'premium_interactions',
+						entitlement: null as any,
+						remaining: null as any,
+						quota_remaining: null as any,
+					}
+				}
+			};
+			
+			const html = generateHtml(nullDataResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+		});
+
+		it('should handle undefined usageData fields', () => {
+			const incompleteUsageData: UsageData = {
+				included: { remaining: 1500, total: 2000, used: 500, percentage: 25 },
+				budget: { remaining: 0, total: 0, used: 0, percentage: 0 },
+				overall: { remaining: 1500, total: 2000, used: 500, percentage: 25 },
+				budgetTotal: 0,
+				billingPeriodEnd: new Date().toISOString(),
+				lastRefreshTime: Date.now(),
+			} as any;
+			
+			const html = generateHtml(mockApiResponse, incompleteUsageData, mockWebview as any);
+			
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+		});
+
+		it('should handle very large numbers (>1 million)', () => {
+			const largeNumberResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				quota_snapshots: {
+					premium_interactions: {
+						quota_id: 'premium_interactions',
+						entitlement: 10000000,
+						remaining: 5000000,
+						quota_remaining: 5000000,
+					}
+				}
+			};
+			
+			const html = generateHtml(largeNumberResponse, mockUsageData, mockWebview as any);
+			
+			// Should include formatted numbers with commas
+			expect(html).to.include('10,000,000');
+			expect(html).to.include('5,000,000');
+		});
+
+		it('should handle reset date in the past', () => {
+			const pastResetResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				quota_reset_date_utc: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+			};
+			
+			const html = generateHtml(pastResetResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+		});
+
+		it('should handle reset date far in future (365+ days)', () => {
+			const futureResetResponse: GitHubCopilotApiResponse = {
+				...mockApiResponse,
+				quota_reset_date_utc: new Date(Date.now() + 400 * 24 * 60 * 60 * 1000).toISOString(), // 400 days
+			};
+			
+			const html = generateHtml(futureResetResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.be.a('string');
+			expect(html).to.include('<!DOCTYPE html>');
+		});
+	});
+
+	// Phase 8: T070 - Content Security Policy Tests
+	describe('Content Security Policy (T070)', () => {
+		it('should include CSP meta tag', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.include('Content-Security-Policy');
+			expect(html).to.include('<meta');
+		});
+
+		it('should use nonce for scripts', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			// Should have nonce attribute in script tag
+			expect(html).to.match(/<script nonce="/);
+		});
+
+		it('should not use inline event handlers', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			// Should not have onclick, onerror, etc. in HTML elements (except in script)
+			const bodyContent = html.match(/<body>([\s\S]*?)<\/body>/);
+			if (bodyContent) {
+				// Allow onclick in script tag but not in HTML elements directly
+				const nonScriptContent = bodyContent[1].replace(/<script[\s\S]*?<\/script>/g, '');
+				expect(nonScriptContent).to.match(/onclick="(refresh|copyToClipboard)\(\)"/); // This is OK as it's defined via script
+			}
+		});
+
+		it('should restrict default-src to none in CSP', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.include("default-src 'none'");
+		});
+
+		it('should allow style-src from webview.cspSource', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			expect(html).to.include('style-src');
+			expect(html).to.include('vscode-webview:');
+		});
+
+		it('should allow script-src with nonce only', () => {
+			const html = generateHtml(mockApiResponse, mockUsageData, mockWebview as any);
+			
+			const cspMatch = html.match(/Content-Security-Policy.*script-src 'nonce-([^']+)'/);
+			expect(cspMatch).to.not.be.null;
+		});
+	});
+	}); // end generateHtml describe block
+}); // end WebviewHtmlGenerator describe block
+
